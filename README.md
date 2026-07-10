@@ -1,1 +1,1 @@
-# A-CHIP-8-Emulator-in-Modern-C-
+# A-CHIP-8-Emulator-in-Modern-C++
