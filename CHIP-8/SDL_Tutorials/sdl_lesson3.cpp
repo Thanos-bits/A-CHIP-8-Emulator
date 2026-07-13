@@ -1,6 +1,6 @@
 #include <iostream>
 #include "SDL.h"
-
+/*
 //Lesson 3 - Events
 #define X_AXIS	640
 #define Y_AXIS	480
@@ -131,3 +131,4 @@ void kill() {
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
+*/
