@@ -5,7 +5,6 @@
 chip8 myChip8;
 
 // int main() {
-
     
 
 //     return 0;
