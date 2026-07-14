@@ -1,6 +1,8 @@
 #include <iostream>
 #include "SDL.h"
 
+/*
+//Lesson 4 - Geometry Rendering
 #define X_AXIS 640
 #define Y_AXIS 480
 
@@ -92,14 +94,12 @@ bool init() {
     // See last example for comments
 	if ( SDL_Init( SDL_INIT_EVERYTHING ) < 0 ) {
 		std::cout << "Error initializing SDL: " << SDL_GetError() << std::endl;
-		system("pause");
 		return false;
 	} 
 
 	window = SDL_CreateWindow( "Example", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, X_AXIS, Y_AXIS, SDL_WINDOW_SHOWN );
 	if ( !window ) {
 		std::cout << "Error creating window: " << SDL_GetError()  << std::endl;
-		system("pause");
 		return false;
 	}
 
@@ -119,3 +119,4 @@ void kill() {
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+*/
