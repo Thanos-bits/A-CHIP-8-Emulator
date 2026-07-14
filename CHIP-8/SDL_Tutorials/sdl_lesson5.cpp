@@ -1,6 +1,7 @@
 #include <iostream>
 #include "SDL.h"
 
+/*
 //Lesson 5 - Textures
 //textures are the GPU rendering equivalent of surfaces, hence they are almost always created from surfaces
 #define X_AXIS  640
@@ -120,3 +121,4 @@ void kill() {
     window = NULL;
     SDL_Quit();
 }
+*/
