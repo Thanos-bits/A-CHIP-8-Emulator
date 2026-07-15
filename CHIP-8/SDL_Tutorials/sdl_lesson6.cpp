@@ -1,9 +1,11 @@
 #include <iostream>
 
+/*
 #include "SDL.h"
-//#include <SDL_image.h>
-//#include <SDL_mixer.h>
+#include <SDL_image.h>
+#include <SDL_mixer.h>
 
+//Lesson 6 - Sound & Extension Libraries
 using namespace std;
 
 bool init();
@@ -17,7 +19,7 @@ SDL_Texture* texture;
 Mix_Music* music;
 Mix_Chunk* sound;
 
-int main(int argc, char** args) {
+int main() {
 
 	if ( !init() ) {
 		system("pause");
@@ -85,7 +87,6 @@ bool init() {
 	// Initialize SDL_image with PNG loading subsystem
 	if ( IMG_Init(IMG_INIT_PNG) < 0 ) {
 		cout << "Error initializing SDL_image: " << IMG_GetError() << endl;
-		system("pause");
 		return false;
 	}
 
@@ -125,14 +126,14 @@ bool init() {
 	}
 
 	// Load music
-	music = Mix_LoadMUS("music.wav");
+	music = Mix_LoadMUS("scratch.wav");
 	if ( !music ) {
 		cout << "Error loading music: " << Mix_GetError() << endl;
 		return false;
 	}
 
 	// Load sound
-	sound = Mix_LoadWAV("scratch.wav");
+	sound = Mix_LoadWAV("music.mp3");
 	if ( !sound ) {
 		cout << "Error loading sound: " << Mix_GetError() << endl;
 		return false;
@@ -161,3 +162,4 @@ void kill() {
 	Mix_Quit();
 	SDL_Quit();
 }
+*/
