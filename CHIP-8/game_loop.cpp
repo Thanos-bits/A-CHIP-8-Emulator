@@ -4,8 +4,8 @@
 
 chip8 myChip8;
 
-// int main() {
+int main() {
     
 
-//     return 0;
-// }
+    return 0;
+}

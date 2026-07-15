@@ -12,7 +12,7 @@ public:
     void init();
     void emulateCycle();
     void debugRender();
-    void loadApp();
+    bool loadApp(const char *filename);
 protected:
     bool drawFlag;
     uint16_t opcode;          //each opcode = 2 bytes

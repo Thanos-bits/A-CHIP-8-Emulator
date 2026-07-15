@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
-
+/*
+//Lesson 7 - Text Rendering & Input
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
@@ -142,3 +143,4 @@ void kill() {
     TTF_Quit();
     SDL_Quit();
 }
+*/

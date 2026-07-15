@@ -206,6 +206,7 @@ void chip8::emulateCycle() {
             }
         }
         pc += 2;
+        drawFlag = true;
     break;
 
     case 0xE000:
@@ -304,6 +305,14 @@ void chip8::debugRender() {
 
 }
 
-void chip8::loadApp() {
+bool chip8::loadApp(const char *filename) {
+    init();
+    FILE *file = fopen(filename, "rb");
+    if(!file) {
+        std::cout << "Error opening file: " << stderr <<std::endl;
+        return false;
+    }
 
+    
+    return true;
 }
