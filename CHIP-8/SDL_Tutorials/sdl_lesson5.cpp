@@ -93,7 +93,7 @@ bool init() {
     }
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     if(!renderer) {
-        std::cout << "Failed to create window " << SDL_GetError() << std::endl;
+        std::cout << "Failed to create renderer " << SDL_GetError() << std::endl;
         return false;
     }
     image = SDL_LoadBMP("bmp_24.bmp");

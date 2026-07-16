@@ -13,7 +13,7 @@ public:
     void emulateCycle();
     void debugRender();
     bool loadApp(const char *filename);
-protected:
+// protected:
     bool drawFlag;
     uint16_t opcode;          //each opcode = 2 bytes
     uint8_t memory[4096];     //each memory location = 1 byte

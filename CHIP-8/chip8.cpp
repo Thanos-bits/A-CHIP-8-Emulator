@@ -32,6 +32,7 @@ void chip8::init() {
     opcode = 0;
     I = 0;
     sp = 0;
+    drawFlag = true;
     
     //Clear display
     for(int i = 0; i < 2048; ++i) {
@@ -71,20 +72,19 @@ void chip8::emulateCycle() {
     switch (opcode & 0xF000)
     {
     case 0x0000:
-        switch (opcode & 0x000F)
+        switch (opcode & 0x00FF)
         {
-        case 0x0000:
-            for(int i; i < 2048; ++i) {
+        case 0x00E0:
+            for(int i = 0; i < 2048; ++i) {
                 gfx[i] = 0x0;
-                drawFlag = true;
             }
+            drawFlag = true;
         break;
-        case 0x000E:
+        case 0x00EE:
             sp--;
             pc = stack[sp];
         break;
         default:
-            std::cout << "Unkown opcode: " << opcode << std::endl;
         break;
         }
         pc += 2;
@@ -110,7 +110,7 @@ void chip8::emulateCycle() {
     break;
 
     case 0x5000:    //0x5XY0
-        if (V[X] == V[opcode & 0x00F0] ) pc += 4;
+        if (V[X] == V[Y] ) pc += 4;
         else pc += 2;
     break;
     
@@ -120,7 +120,7 @@ void chip8::emulateCycle() {
     break;
 
     case 0x7000:
-        V[X] = opcode & 0x00FF;
+        V[X] += opcode & 0x00FF;
         pc += 2;
     break;
 
@@ -144,32 +144,28 @@ void chip8::emulateCycle() {
             break;
             
             case 0x0004:
+                V[0xF] = ((int)V[X] + (int)V[Y] > 255) ? 1 : 0;
                 V[X] += V[Y];
-                if(V[X] + V[Y] > 255) { V[16] = 1;} //overflow
-                else V[16] = 0;
             break;
 
             case 0x0005:
+                V[0xF] = (V[X] >= V[Y]) ? 1 : 0;
                 V[X] -= V[Y];
-                if( V[X] < V[Y]) { V[16] = 0;}      //underflow
-                else V[16] = 1;
             break;
 
             case 0x0006:
-                V[16] = V[X] & 0x0001;
+                V[0xF] = V[X] & 0x1;
                 V[X] >>= 1;
             break;
 
             case 0x0007:
-                V[X] = V[Y] - V[X];
-                if(V[X] > V[Y]) {V[16] = 0;}        //underflow
-                else V[16] = 1; 
+                V[0xF] = (V[Y] >= V[X]) ? 1 : 0;
+                V[X] = V[Y] - V[X]; 
             break;
 
             case 0x000E:
-                V[X] <<= 1;
-                if((V[X] & 0x4000) == 0x4000) {V[16] = 1;}
-                else V[16] = 0;            
+                V[0xF] = (V[X] & 0x80) >> 7;
+                V[X] <<= 1;            
             break;
 
             default:
@@ -199,26 +195,37 @@ void chip8::emulateCycle() {
     break;
 
     case 0xD000:
-        //draw(V[X], V[Y], (opcode & 0x000F));
-        for(int i = X; i < (X + 8); ++i) {
-            for(int j = Y; j < ((opcode & 0x000F) + Y); ++j) {
-                gfx[X * Y] = memory[I*j + i];
+    {
+        uint16_t height = opcode & 0x000F;
+        uint8_t xPos = V[X];
+        uint8_t yPos = V[Y];
+        V[0xF] = 0;
+
+        for(int row = 0; row < height; row++) {
+            uint8_t spriteByte = memory[I + row];
+            for(int col = 0; col < 8; col++) {
+                uint8_t spritePixel = (spriteByte >> (7 - col)) & 0x1;
+                if(spritePixel) {
+                    int screenX = (xPos + col) % 64;
+                    int screenY = (yPos + row) % 32;
+                    int idx = screenY * 64 + screenX;
+
+                    if(gfx[idx] == 1) V[0xF] = 1;
+                    gfx[idx] ^= 1;
+                }
             }
         }
         pc += 2;
         drawFlag = true;
+    }
     break;
 
     case 0xE000:
-        if((opcode & 0x00A1) == 0x0A1) {
-            if(key[X] != V[X]) pc += 4;
-            else pc += 2;
-        }
-        else if((opcode & 0x009E) == 0x09E) {
-            if(key[X] == V[X]) pc += 4;
-            else pc += 2;
-        }
-        else pc += 2;
+        if ((opcode & 0x00FF) == 0x009E) {        // SKP: skip if key[V[X]] pressed
+            if (key[V[X]] != 0) pc += 4; else pc += 2;
+        } else if ((opcode & 0x00FF) == 0x00A1) {  // SKNP: skip if key[V[X]] NOT pressed
+            if (key[V[X]] == 0) pc += 4; else pc += 2;
+        } else pc += 2;
     break;
 
     case 0xF000:
@@ -237,7 +244,7 @@ void chip8::emulateCycle() {
                         keyPressed = true;
                     }
                 }
-                if(!keyPressed) return;
+                if(!keyPressed) pc -= 2;
             }
             break;
 
@@ -278,26 +285,15 @@ void chip8::emulateCycle() {
             break;
 
             default:
-                std::cout << "Unkown opcode: " << opcode << std::endl;
+                //std::cout << "Unkown opcode: " << opcode << std::endl;
             break;
         }
         pc += 2;
     break;
 
     default:
-        std::cout << "Unkown opcode: " << opcode << std::endl;
+        //std::cout << "Unkown opcode: " << opcode << std::endl;
     break;
-    }
-    
-    // Execute Opcode
-    // Update timers
-    if(delay_timer > 0) {
-        delay_timer--;
-    }
-
-    if(sound_timer > 0) {
-        if(sound_timer == 1) { std::cout << "BEEP!\n";}
-        sound_timer--;
     }
 }
 
@@ -307,12 +303,53 @@ void chip8::debugRender() {
 
 bool chip8::loadApp(const char *filename) {
     init();
+    
     FILE *file = fopen(filename, "rb");
     if(!file) {
-        std::cout << "Error opening file: " << stderr <<std::endl;
+        std::cerr << "Error opening file: " << stderr <<std::endl;
+        return false;
+    }
+    
+    fseek(file, 0, SEEK_END);
+    long fsize = ftell(file);
+    rewind(file);
+
+    if(fsize < 0) {
+        std::cerr << "Error: Could not determine file size." << std::endl;
+        fclose(file);
+        return false;
+    }
+    std::cout << "File size: " << fsize << " bytes" << std::endl;
+
+    char *buffer = (char*) malloc (sizeof(char) * fsize);
+    if(!buffer) {
+        std::cerr << "Couldn't allocate extra memory" << std::endl;
+        fclose(file);
         return false;
     }
 
-    
+    size_t result = fread(buffer, 1, fsize, file);
+
+    if(result != static_cast<size_t>(fsize)) {
+        std::cerr << "Error reading stream" << std::endl;
+        free(buffer);
+        fclose(file);
+        return false;
+    }
+
+    // chip8.cpp -> chip8::loadApp
+    if (fsize > 0 && fsize <= (4096 - 512)) {
+        for (int i = 0; i < fsize; ++i) {
+            memory[512 + i] = static_cast<uint8_t>(buffer[i]);
+        }
+        std::cout << "ROM loaded successfully! Size: " << fsize << " bytes." << std::endl;
+    } else {
+        std::cerr << "Error: ROM size is invalid or too big for memory (" << fsize << " bytes)" << std::endl;
+        fclose(file);
+        free(buffer);
+        return false;
+    }
+    fclose(file);
+    free(buffer);
     return true;
 }
